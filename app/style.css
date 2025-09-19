@@ -1,0 +1,8 @@
+
+.bg-thaid {
+  background-image: url("/images/logothaid.png");
+  background-color: #030650 !important;
+  background-size: contain;
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
