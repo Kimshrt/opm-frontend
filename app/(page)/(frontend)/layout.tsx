@@ -1,14 +1,20 @@
+"use client";
 
-import AppHeaderFrontEnd from '@/layout/AppHeaderFrontEnd';
+import { useSidebar } from "@/context/SidebarContext";
+import AppHeader from "@/layout/AppHeader";
+import AppHeaderFrontEnd from "@/layout/AppHeaderFrontEnd";
+import AppSidebar from "@/layout/AppSidebar";
+import Backdrop from "@/layout/Backdrop";
+import React from "react";
 
-export default function RootLayout({
+export default function FrontEndLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <div>
-       <AppHeaderFrontEnd />
+      <AppHeaderFrontEnd />
       {children}
     </div>
   );

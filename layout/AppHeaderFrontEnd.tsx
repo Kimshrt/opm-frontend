@@ -100,11 +100,36 @@ const AppHeaderFrontEnd: React.FC = () => {
         >
           <div className="flex flex-wrap items-center gap-2 2xsm:gap-3">
             {/* <ThemeToggleButton /> */}
-            <div>asdasd</div>
-            <div>asdasd</div>
-            <div>asdasd</div>
-            <div>asdasd</div>
-            <div>asdasd</div>
+            <Link
+              href="/"
+              className="text-gray-700 hover:text-blue-600 font-medium transition"
+            >
+              หน้าแรก
+            </Link>
+            <Link
+              href="/news"
+              className="text-gray-700 hover:text-blue-600 font-medium transition"
+            >
+              ข่าวสาร
+            </Link>
+            <Link
+              href="/funds"
+              className="text-gray-700 hover:text-blue-600 font-medium transition"
+            >
+              กองทุน
+            </Link>
+            <Link
+              href="/about"
+              className="text-gray-700 hover:text-blue-600 font-medium transition"
+            >
+              เกี่ยวกับเรา
+            </Link>
+            <Link
+              href="/contact"
+              className="text-gray-700 hover:text-blue-600 font-medium transition"
+            >
+              ติดต่อเรา
+            </Link>
             {/* <NotificationDropdown /> */}
           </div>
           {/* <UserDropdown /> */}

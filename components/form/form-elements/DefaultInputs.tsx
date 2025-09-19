@@ -28,7 +28,7 @@ export default function DefaultInputs() {
           <Label>Input with Placeholder</Label>
           <Input type="text" placeholder="info@gmail.com" />
         </div>
-        <div>
+        {/* <div>
           <Label>Select Input</Label>
           <div className="relative">
             <Select
@@ -41,7 +41,7 @@ export default function DefaultInputs() {
               <ChevronDownIcon/>
             </span>
           </div>
-        </div>
+        </div> */}
         <div>
           <Label>Password Input</Label>
           <div className="relative">
