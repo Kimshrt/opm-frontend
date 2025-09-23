@@ -56,12 +56,12 @@ const navItems: NavItem[] = [
   {
     icon: <UserCircleIcon />,
     name: "วาระ/มติการประชุม",
-    path: "/backend/profile",
+    path: "/drf/meeting-resolutions",
   },
   {
     icon: <UserCircleIcon />,
     name: "จัดการประกาศ",
-    path: "/backend/profile",
+    path: "/drf/announcements",
   },
 ];
 

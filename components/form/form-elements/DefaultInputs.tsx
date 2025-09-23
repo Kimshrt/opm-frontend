@@ -62,7 +62,7 @@ export default function DefaultInputs() {
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <DatePicker
             id="date-picker"
             label="Date Picker Input"
@@ -72,7 +72,7 @@ export default function DefaultInputs() {
               console.log({ dates, currentDateString });
             }}
           />
-        </div>
+        </div> */}
 
         <div>
           <Label htmlFor="tm">Time Picker Input</Label>
