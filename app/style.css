@@ -6,3 +6,8 @@
   background-position: 50%;
   background-repeat: no-repeat;
 }
+.swiper-button-next,
+.swiper-button-prev {
+  color: white !important;
+  transform: scale(1.2);
+}

@@ -1,8 +1,7 @@
 import LandingPage from '@/components/page/LandingPage'
 import React from 'react'
 
-export default function page() {
-  return (
-    <LandingPage />
-  )
+export default async function Page() {
+
+  return <LandingPage />
 }
