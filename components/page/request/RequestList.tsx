@@ -134,7 +134,7 @@ export default function RequestList() {
             render: (row) => (
               <div className="flex items-center justify-center space-x-2">
                 {/* ดูรายละเอียด */}
-                <Link href={`/drf/request/view/${row.id}`} passHref>
+                <Link href={`/drf/request/view/${row.id}/1`} passHref>
                   <button
                     className="p-2 text-blue-500 hover:bg-blue-100 rounded-full"
                     title="ดูรายละเอียด"
@@ -144,7 +144,7 @@ export default function RequestList() {
                 </Link>
 
                 {/* แก้ไข */}
-                <Link href={`/drf/request/edit/${row.id}`} passHref>
+                <Link href={`/drf/request/edit/${row.id}/1`} passHref>
                   <button
                     className="p-2 text-yellow-500 hover:bg-yellow-100 rounded-full"
                     title="แก้ไขคำร้อง"

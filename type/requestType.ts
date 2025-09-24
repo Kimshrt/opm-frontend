@@ -1,4 +1,3 @@
-
 export type RequestItem = {
   name: string;
   surname: string;
@@ -42,7 +41,9 @@ export type FormValues = {
   documentAssistanceArea1: string;
   documentAssistanceArea2: string;
   documentAssistanceAreaFile: File[];
-  date: Date;
+  date: string;
   casualty: string;
   totalPaid: string;
+  criteria: string;
+  meetingResolutions:string
 };

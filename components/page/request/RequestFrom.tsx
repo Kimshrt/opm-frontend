@@ -1,5 +1,4 @@
 "use client";
-
 import ComponentCard from "@/components/common/ComponentCard";
 import DropzoneInput from "@/components/form/form-elements/DropZone";
 import Input from "@/components/form/input/InputField";
@@ -14,13 +13,17 @@ import DatePicker from "@/components/form/date-picker";
 import TextArea from "@/components/form/input/TextArea";
 import FileInput from "@/components/form/input/FileInput";
 import { Disclosure } from "@headlessui/react";
-import { FiChevronDown } from "react-icons/fi";
+import { FiChevronDown, FiEdit2 } from "react-icons/fi";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormValues } from "@/type/requestType";
+import { useState } from "react";
 
-
-
+type RequestFormProps = {
+  page?: "edit" | "view";
+  id?: string;
+  disastersId?: string;
+};
 
 // ✅ ข้อมูลภัยพิบัติ
 const disasters = [
@@ -32,87 +35,234 @@ const disasters = [
   { id: "6", label: "ดินถล่ม" },
   { id: "7", label: "สึนามิ" },
 ];
-
 const schema = yup.object().shape({
-  documentHelp1: yup.string().required("กรุณากรอกข้อมูลเอกสารช่วยเหลือ"),
-  documentHelp2: yup.string().required("กรุณากรอกข้อมูลเอกสารช่วยเหลือ"),
-  documentFileHelp: yup.mixed<File[]>().default([]).test(
-    "required",
-    "กรุณาอัปโหลดไฟล์เอกสารช่วยเหลือ",
-    (value) => value && value.length > 0
-  ),
-  documentAffectedProvince1: yup.string().required("กรุณากรอกข้อมูลจังหวัดประสบภัย"),
-  documentAffectedProvince2: yup.string().required("กรุณากรอกข้อมูลจังหวัดประสบภัย"),
-  documentAffectedProvincesFile: yup.mixed<File[]>().default([]).test(
-    "required",
-    "กรุณาอัปโหลดไฟล์จังหวัดประสบภัย",
-    (value) => value && value.length > 0
-  ),
-  documentAssistanceArea1: yup.string().required("กรุณากรอกข้อมูลประกาศเขตการช่วยเหลือ"),
-  documentAssistanceArea2: yup.string().required("กรุณากรอกข้อมูลประกาศเขตการช่วยเหลือ"),
-  documentAssistanceAreaFile: yup.mixed<File[]>().default([]).test(
-    "required",
-    "กรุณาอัปโหลดไฟล์ประกาศเขตการช่วยเหลือ",
-    (value) => value && value.length > 0
-  ),
-  date: yup.date().typeError("กรุณาเลือกวันที่").required("กรุณาเลือกวันที่"),
+  documentHelp1: yup
+    .string()
+    .default("")
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) => s.required("กรุณากรอกข้อมูลเอกสารช่วยเหลือ"),
+      otherwise: (s) => s.notRequired(),
+    }),
+
+  documentHelp2: yup
+    .string()
+    .default("")
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) => s.required("กรุณากรอกข้อมูลเอกสารช่วยเหลือ"),
+      otherwise: (s) => s.notRequired(),
+    }),
+
+  documentFileHelp: yup
+    .mixed<File[]>()
+    .default([])
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) =>
+        s.test(
+          "required",
+          "กรุณาอัปโหลดไฟล์เอกสารช่วยเหลือ",
+          (value) => value && value.length > 0
+        ),
+      otherwise: (s) => s.notRequired(),
+    }),
+
+  documentAffectedProvince1: yup
+    .string()
+    .default("")
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) => s.required("กรุณากรอกข้อมูลจังหวัดประสบภัย"),
+      otherwise: (s) => s.notRequired(),
+    }),
+
+  documentAffectedProvince2: yup
+    .string()
+    .default("")
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) => s.required("กรุณากรอกข้อมูลจังหวัดประสบภัย"),
+      otherwise: (s) => s.notRequired(),
+    }),
+
+  documentAffectedProvincesFile: yup
+    .mixed<File[]>()
+    .default([])
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) =>
+        s.test(
+          "required",
+          "กรุณาอัปโหลดไฟล์จังหวัดประสบภัย",
+          (value) => value && value.length > 0
+        ),
+      otherwise: (s) => s.notRequired(),
+    }),
+
+  documentAssistanceArea1: yup
+    .string()
+    .default("")
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) => s.required("กรุณากรอกข้อมูลประกาศเขตการช่วยเหลือ"),
+      otherwise: (s) => s.notRequired(),
+    }),
+
+  documentAssistanceArea2: yup
+    .string()
+    .default("")
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) => s.required("กรุณากรอกข้อมูลประกาศเขตการช่วยเหลือ"),
+      otherwise: (s) => s.notRequired(),
+    }),
+
+  documentAssistanceAreaFile: yup
+    .mixed<File[]>()
+    .default([])
+    .when("criteria", {
+      is: (val: string) => !val || val === "ตามหลักเกณฑ์",
+      then: (s) =>
+        s.test(
+          "required",
+          "กรุณาอัปโหลดไฟล์ประกาศเขตการช่วยเหลือ",
+          (value) => value && value.length > 0
+        ),
+      otherwise: (s) => s.notRequired(),
+    }),
+  date: yup.string().required("กรุณาเลือกวันที่"),
   province: yup.string().required("กรุณาเลือกจังหวัด"),
   district: yup.string().required("กรุณาเลือกอำเภอ"),
   subdistrict: yup.string().required("กรุณาเลือกตำบล"),
   casualty: yup.string().required("กรุณาเลือกประเภทผู้ประสบภัย"),
   totalPaid: yup.string().required("กรุณาจำนวนเงินทั้งหมด"),
+  criteria: yup
+    .string()
+    .default("ตามหลักเกณฑ์")
+    .when("$page", {
+      is: "view",
+      then: (s) => s.required("กรุณากรอกหลักเกณฑ์"),
+    }),
+  meetingResolutions: yup
+    .string()
+    .default("")
+    .when("criteria", {
+      is: (val: string) => val === "นอกเหนือหลักเกณฑ์",
+      then: (s) => s.required("กรุณาเลือกมติการประชุม"),
+      otherwise: (s) => s.notRequired(),
+    }),
+  requests: yup
+    .array()
+    .of(
+      yup.object().shape({
+        name: yup.string().required("กรุณากรอกชื่อ"),
+        surname: yup.string().required("กรุณากรอกนามสกุล"),
+        citizenId: yup
+          .string()
+          .required("กรุณากรอกเลขประจำตัวประชาชน")
+          .matches(/^[0-9]{13}$/, "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก"),
+        maritalStatus: yup.string().required("กรุณาเลือกสถานภาพ"),
+        religion: yup.string().required("กรุณาเลือกศาสนา"),
+        age: yup
+          .number()
+          .typeError("กรุณากรอกอายุเป็นตัวเลข")
+          .positive("อายุต้องมากกว่า 0")
+          .integer("อายุต้องเป็นจำนวนเต็ม")
+          .required("กรุณากรอกอายุ"),
+        died: yup.string().required("กรุณากรอกสาเหตุและวันที่เสียชีวิต"),
+        houseRegistration: yup.string().required("กรอกที่อยู่ตามทะเบียนบ้าน"),
+        currentAddress: yup.string().required("กรอกที่อยู่ปัจจุบัน"),
+        career: yup.string().required("กรุณากรอกอาชีพ"),
+        income: yup
+          .string()
+          .matches(/^[0-9]*$/, "รายได้ต้องเป็นตัวเลข")
+          .required("กรุณากรอกรายได้ต่อเดือน"),
 
-  requests: yup.array().of(
-    yup.object().shape({
-      name: yup.string().required("กรุณากรอกชื่อ"),
-      surname: yup.string().required("กรุณากรอกนามสกุล"),
-      citizenId: yup.string().required("กรุณากรอกเลขประจำตัวประชาชน")
-        .matches(/^[0-9]{13}$/, "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก"),
-      maritalStatus: yup.string().required("กรุณาเลือกสถานภาพ"),
-      religion: yup.string().required("กรุณาเลือกศาสนา"),
-      age: yup.number().typeError("กรุณากรอกอายุเป็นตัวเลข")
-        .positive("อายุต้องมากกว่า 0")
-        .integer("อายุต้องเป็นจำนวนเต็ม")
-        .required("กรุณากรอกอายุ"),
-      died: yup.string().required("กรุณากรอกสาเหตุและวันที่เสียชีวิต"),
-      houseRegistration: yup.string().required("กรอกที่อยู่ตามทะเบียนบ้าน"),
-      currentAddress: yup.string().required("กรอกที่อยู่ปัจจุบัน"),
-      career: yup.string().required("กรุณากรอกอาชีพ"),
-      income: yup.string().matches(/^[0-9]*$/, "รายได้ต้องเป็นตัวเลข")
-        .required("กรุณากรอกรายได้ต่อเดือน"),
+        familyMembers: yup.string().default(""),
+        assistance: yup.string().default(""),
 
-      familyMembers: yup.string().default(""),
-      assistance: yup.string().default(""),
+        beforeAfter: yup.mixed<File[]>().default([]),
+        houseRegistrationFile: yup
+          .mixed<File[]>()
+          .default([])
+          .test(
+            "required",
+            "กรุณาอัปโหลดสำเนาทะเบียนบ้าน",
+            (v) => v && v.length > 0
+          ),
+        citizenCard: yup
+          .mixed<File[]>()
+          .default([])
+          .test(
+            "required",
+            "กรุณาอัปโหลดสำเนาบัตรประชาชน",
+            (v) => v && v.length > 0
+          ),
+        dailyReport: yup
+          .mixed<File[]>()
+          .default([])
+          .test(
+            "required",
+            "กรุณาอัปโหลดบันทึกประจำวัน",
+            (v) => v && v.length > 0
+          ),
+        deathCertificate: yup
+          .mixed<File[]>()
+          .default([])
+          .test(
+            "required",
+            "กรุณาอัปโหลดหนังสือรับรองการตาย",
+            (v) => v && v.length > 0
+          ),
+        deathRecord: yup
+          .mixed<File[]>()
+          .default([])
+          .test("required", "กรุณาอัปโหลดมรณบัตร", (v) => v && v.length > 0),
+        marriageCertificate: yup.mixed<File[]>().default([]), // optional
+        constructionCost: yup.string().required("กรุณากรอกค่าก่อสร้างทั้งหมด"),
+        constructionCostFile: yup
+          .mixed<File[]>()
+          .default([])
+          .test(
+            "required",
+            "กรุณาอัปโหลดไฟล์ค่าก่อสร้าง",
+            (v) => v && v.length > 0
+          ),
+        fireCauseReport: yup
+          .mixed<File[]>()
+          .default([])
+          .test(
+            "required",
+            "กรุณาอัปโหลดผลสาเหตุเพลิงไหม้",
+            (v) => v && v.length > 0
+          ),
 
-      beforeAfter: yup.mixed<File[]>().default([]),
-      houseRegistrationFile: yup.mixed<File[]>().default([]).test("required", "กรุณาอัปโหลดสำเนาทะเบียนบ้าน", v => v && v.length > 0),
-      citizenCard: yup.mixed<File[]>().default([]).test("required", "กรุณาอัปโหลดสำเนาบัตรประชาชน", v => v && v.length > 0),
-      dailyReport: yup.mixed<File[]>().default([]).test("required", "กรุณาอัปโหลดบันทึกประจำวัน", v => v && v.length > 0),
-      deathCertificate: yup.mixed<File[]>().default([]).test("required", "กรุณาอัปโหลดหนังสือรับรองการตาย", v => v && v.length > 0),
-      deathRecord: yup.mixed<File[]>().default([]).test("required", "กรุณาอัปโหลดมรณบัตร", v => v && v.length > 0),
-      marriageCertificate: yup.mixed<File[]>().default([]), // optional
-      constructionCost: yup.string().required("กรุณากรอกค่าก่อสร้างทั้งหมด"),
-      constructionCostFile: yup.mixed<File[]>().default([]).test("required", "กรุณาอัปโหลดไฟล์ค่าก่อสร้าง", v => v && v.length > 0),
-      fireCauseReport: yup.mixed<File[]>().default([]).test("required", "กรุณาอัปโหลดผลสาเหตุเพลิงไหม้", v => v && v.length > 0),
-
-      damage: yup.string().required("กรุณาเลือกระดับความเสียหาย"),
-    })
-  ).default([]),
+        damage: yup.string().required("กรุณาเลือกระดับความเสียหาย"),
+      })
+    )
+    .default([]),
 });
 
-
-export default function RequestForm() {
-  const { disastersId } = useParams(); // ✅ รับ param จาก URL เช่น 1, 2, 3
+export default function RequestForm({
+  page = "edit",
+  id,
+  disastersId,
+}: RequestFormProps) {
   const disaster = disasters.find((d) => d.id === disastersId); // หา label ของภัยพิบัติ
+  const [isLocked, setIsLocked] = useState(true);
 
   const {
     register,
     handleSubmit,
     control,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema, { context: { page } }),
+    context: { page },
     defaultValues: {
+      criteria:"ตามหลักเกณฑ์",
       requests: [
         {
           name: "",
@@ -143,7 +293,7 @@ export default function RequestForm() {
       ],
     },
   });
-
+  const criteria = watch("criteria");
   const { fields, append, remove } = useFieldArray({
     control,
     name: "requests",
@@ -161,142 +311,185 @@ export default function RequestForm() {
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 gap-6 "
       >
-        {/*  */}
-        <div>
-          <Label
-            className={`font-medium ${
-              errors.documentHelp1 ||
-              errors.documentHelp2 ||
-              errors.documentFileHelp
-                ? "text-red-500"
-                : "text-gray-700"
-            }`}
-          >
-            เอกสารหนังสือการให้ความช่วยเหลือ จากกรมป้องกันและบรรเทาสาธารณภัย
-            <span className="text-red-500"> *</span>
-          </Label>
+        {criteria === "นอกเหนือหลักเกณฑ์" ? (
+          <>
+            {/*  */}
+            <div>
+              <Label
+                className={`font-medium ${
+                  errors.meetingResolutions ? "text-red-500" : "text-gray-700"
+                }`}
+              >
+                วาระ/มติการประชุม
+                <span className="text-red-500"> *</span>
+              </Label>
 
-          {/* กรอก ปี/เลขหนังสือ */}
-          <div className="flex items-center gap-2 justify-between lg:flex-row flex-col ">
-            <div className="flex items-center gap-2 ">
-              <Input
-                type="text"
-                placeholder="00000"
-                {...register("documentHelp1")}
-                error={!!errors.documentHelp1}
-                errorMessage={errors.documentHelp1?.message}
-                className="w-24"
-              />
-              <span className="text-xl">/</span>
-              <Input
-                type="text"
-                placeholder="000000"
-                {...register("documentHelp2")}
-                error={!!errors.documentHelp2}
-                errorMessage={errors.documentHelp2?.message}
-                className="flex-1"
-              />
+              {/* กรอก ปี/เลขหนังสือ */}
+              <div className="w-full lg:w-1/2">
+                <Select
+                  options={[
+                    { value: "002", label: "วาระ/มติการประชุม ที่ 1 " },
+                    { value: "001", label: "วาระ/มติการประชุม ที่ 2 " },
+                    { value: "003", label: "วาระ/มติการประชุม ที่ 3 " },
+                  ]}
+                  placeholder="เลือกวาระ/มติการประชุม"
+                  disabled={page === "view"}
+                  register={register("meetingResolutions")}
+                  error={!!errors.meetingResolutions}
+                  errorMessage={errors.meetingResolutions?.message}
+                />
+              </div>
             </div>
+          </>
+        ) : (
+          <>
+            {/*  */}
+            <div>
+              <Label
+                className={`font-medium ${
+                  errors.documentHelp1 ||
+                  errors.documentHelp2 ||
+                  errors.documentFileHelp
+                    ? "text-red-500"
+                    : "text-gray-700"
+                }`}
+              >
+                เอกสารหนังสือการให้ความช่วยเหลือ จากกรมป้องกันและบรรเทาสาธารณภัย
+                <span className="text-red-500"> *</span>
+              </Label>
 
-            {/* Upload file */}
-            <FileInput
-              register={register("documentFileHelp")}
-              error={!!errors.documentFileHelp}
-              errorMessage={errors.documentFileHelp?.message}
-              className="flex-1 w-full"
-            />
-          </div>
-        </div>
-        {/*  */}
-        <div>
-          <Label
-            className={`font-medium ${
-              errors.documentAffectedProvince1 ||
-              errors.documentAffectedProvince2 ||
-              errors.documentAffectedProvincesFile
-                ? "text-red-500"
-                : "text-gray-700"
-            }`}
-          >
-            เอกสารหนังสือจากจังหวัดในพื้นที่ประสบภัย
-            <span className="text-red-500"> *</span>
-          </Label>
-          {/* กรอก ปี/เลขหนังสือ */}
-          <div className="flex items-center gap-2 justify-between lg:flex-row flex-col ">
-            <div className="flex items-center gap-2 ">
-              <Input
-                type="text"
-                placeholder="00000"
-                {...register("documentAffectedProvince1")}
-                error={!!errors.documentAffectedProvince1}
-                errorMessage={errors.documentAffectedProvince1?.message}
-                className="w-24"
-              />
-              <span className="text-xl">/</span>
-              <Input
-                type="text"
-                placeholder="000000"
-                {...register("documentAffectedProvince2")}
-                error={!!errors.documentAffectedProvince2}
-                errorMessage={errors.documentAffectedProvince2?.message}
-                className="flex-1"
-              />
+              {/* กรอก ปี/เลขหนังสือ */}
+              <div className="flex items-center gap-2 justify-between lg:flex-row flex-col ">
+                <div className="flex items-center gap-2 ">
+                  <Input
+                    type="text"
+                    disabled={page === "view"}
+                    placeholder="00000"
+                    {...register("documentHelp1")}
+                    error={!!errors.documentHelp1}
+                    errorMessage={errors.documentHelp1?.message}
+                    className="w-24"
+                  />
+                  <span className="text-xl">/</span>
+                  <Input
+                    type="text"
+                    placeholder="000000"
+                    disabled={page === "view"}
+                    {...register("documentHelp2")}
+                    error={!!errors.documentHelp2}
+                    errorMessage={errors.documentHelp2?.message}
+                    className="flex-1"
+                  />
+                </div>
+
+                {/* Upload file */}
+                <FileInput
+                  disabled={page === "view"}
+                  register={register("documentFileHelp")}
+                  error={!!errors.documentFileHelp}
+                  errorMessage={errors.documentFileHelp?.message}
+                  className="flex-1 w-full"
+                />
+              </div>
             </div>
+            {/*  */}
+            <div>
+              <Label
+                className={`font-medium ${
+                  errors.documentAffectedProvince1 ||
+                  errors.documentAffectedProvince2 ||
+                  errors.documentAffectedProvincesFile
+                    ? "text-red-500"
+                    : "text-gray-700"
+                }`}
+              >
+                เอกสารหนังสือจากจังหวัดในพื้นที่ประสบภัย
+                <span className="text-red-500"> *</span>
+              </Label>
+              {/* กรอก ปี/เลขหนังสือ */}
+              <div className="flex items-center gap-2 justify-between lg:flex-row flex-col ">
+                <div className="flex items-center gap-2 ">
+                  <Input
+                    type="text"
+                    placeholder="00000"
+                    disabled={page === "view"}
+                    {...register("documentAffectedProvince1")}
+                    error={!!errors.documentAffectedProvince1}
+                    errorMessage={errors.documentAffectedProvince1?.message}
+                    className="w-24"
+                  />
+                  <span className="text-xl">/</span>
+                  <Input
+                    type="text"
+                    placeholder="000000"
+                    disabled={page === "view"}
+                    {...register("documentAffectedProvince2")}
+                    error={!!errors.documentAffectedProvince2}
+                    errorMessage={errors.documentAffectedProvince2?.message}
+                    className="flex-1"
+                  />
+                </div>
 
-            {/* Upload file */}
-            <FileInput
-              register={register("documentAffectedProvincesFile")}
-              error={!!errors.documentAffectedProvincesFile}
-              errorMessage={errors.documentAffectedProvincesFile?.message}
-              className="flex-1 w-full"
-            />
-          </div>
-        </div>
-        {/*  */}
-        <div>
-          <Label
-            className={`font-medium ${
-              errors.documentAssistanceArea1 ||
-              errors.documentAssistanceArea2 ||
-              errors.documentAssistanceAreaFile
-                ? "text-red-500"
-                : "text-gray-700"
-            }`}
-          >
-            ประกาศเขตการให้ความช่วยเหลือ
-            <span className="text-red-500"> *</span>
-          </Label>
-          {/* กรอก ปี/เลขหนังสือ */}
-          <div className="flex items-center gap-2 justify-between lg:flex-row flex-col ">
-            <div className="flex items-center gap-2 ">
-              <Input
-                type="text"
-                placeholder="00000"
-                {...register("documentAssistanceArea1")}
-                error={!!errors.documentAssistanceArea1}
-                errorMessage={errors.documentAssistanceArea1?.message}
-                className="w-24"
-              />
-              <span className="text-xl">/</span>
-              <Input
-                type="text"
-                placeholder="000000"
-                {...register("documentAssistanceArea2")}
-                error={!!errors.documentAssistanceArea2}
-                errorMessage={errors.documentAssistanceArea2?.message}
-                className="flex-1"
-              />
+                {/* Upload file */}
+                <FileInput
+                  disabled={page === "view"}
+                  register={register("documentAffectedProvincesFile")}
+                  error={!!errors.documentAffectedProvincesFile}
+                  errorMessage={errors.documentAffectedProvincesFile?.message}
+                  className="flex-1 w-full"
+                />
+              </div>
             </div>
+            {/*  */}
+            <div>
+              <Label
+                className={`font-medium ${
+                  errors.documentAssistanceArea1 ||
+                  errors.documentAssistanceArea2 ||
+                  errors.documentAssistanceAreaFile
+                    ? "text-red-500"
+                    : "text-gray-700"
+                }`}
+              >
+                ประกาศเขตการให้ความช่วยเหลือ
+                <span className="text-red-500"> *</span>
+              </Label>
+              {/* กรอก ปี/เลขหนังสือ */}
+              <div className="flex items-center gap-2 justify-between lg:flex-row flex-col ">
+                <div className="flex items-center gap-2 ">
+                  <Input
+                    type="text"
+                    disabled={page === "view"}
+                    placeholder="00000"
+                    {...register("documentAssistanceArea1")}
+                    error={!!errors.documentAssistanceArea1}
+                    errorMessage={errors.documentAssistanceArea1?.message}
+                    className="w-24"
+                  />
+                  <span className="text-xl">/</span>
+                  <Input
+                    type="text"
+                    disabled={page === "view"}
+                    placeholder="000000"
+                    {...register("documentAssistanceArea2")}
+                    error={!!errors.documentAssistanceArea2}
+                    errorMessage={errors.documentAssistanceArea2?.message}
+                    className="flex-1"
+                  />
+                </div>
 
-            {/* Upload file */}
-            <FileInput
-              register={register("documentAssistanceAreaFile")}
-              error={!!errors.documentAssistanceAreaFile}
-              errorMessage={errors.documentAssistanceAreaFile?.message}
-              className="flex-1 w-full"
-            />
-          </div>
-        </div>
+                {/* Upload file */}
+                <FileInput
+                  disabled={page === "view"}
+                  register={register("documentAssistanceAreaFile")}
+                  error={!!errors.documentAssistanceAreaFile}
+                  errorMessage={errors.documentAssistanceAreaFile?.message}
+                  className="flex-1 w-full"
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         {/*  */}
         <div>
@@ -309,6 +502,7 @@ export default function RequestForm() {
           </Label>
           <DatePicker
             name="date"
+            disabled={page === "view"}
             control={control}
             id="date"
             placeholder="เลือกวันที่"
@@ -332,6 +526,7 @@ export default function RequestForm() {
                 { value: "khonkaen", label: "ขอนแก่น" },
               ]}
               placeholder="เลือกจังหวัด"
+              disabled={page === "view"}
               register={register("province")}
               error={!!errors.province}
               errorMessage={errors.province?.message}
@@ -353,6 +548,7 @@ export default function RequestForm() {
                 { value: "sankamphaeng", label: "สันกำแพง" },
                 { value: "fang", label: "ฝาง" },
               ]}
+              disabled={page === "view"}
               placeholder="เลือกอำเภอ"
               register={register("district")}
               error={!!errors.district}
@@ -375,6 +571,7 @@ export default function RequestForm() {
                 { value: "changphueak", label: "ช้างเผือก" },
                 { value: "sanphisuea", label: "สันผีเสื้อ" },
               ]}
+              disabled={page === "view"}
               placeholder="เลือกตำบล"
               register={register("subdistrict")}
               error={!!errors.subdistrict}
@@ -397,6 +594,7 @@ export default function RequestForm() {
               { value: "เสียชีวิต", label: "เสียชีวิต" },
               { value: "บ้านเรือนเสียหาย", label: "บ้านเรือนเสียหาย" },
             ]}
+            disabled={page === "view"}
             register={register(`casualty`)}
             error={!!errors.casualty}
             errorMessage={errors.casualty?.message}
@@ -473,6 +671,7 @@ export default function RequestForm() {
                           <Input
                             type="text"
                             placeholder="ชื่อ"
+                            disabled={page === "view"}
                             {...register(`requests.${index}.name`)}
                             error={!!errors.requests?.[index]?.name}
                             errorMessage={
@@ -493,6 +692,7 @@ export default function RequestForm() {
                           <Input
                             type="text"
                             placeholder="นามสกุล"
+                            disabled={page === "view"}
                             {...register(`requests.${index}.surname`)}
                             error={!!errors.requests?.[index]?.surname}
                             errorMessage={
@@ -514,6 +714,7 @@ export default function RequestForm() {
                           <Input
                             type="text"
                             placeholder="เลขประจำตัวประชาชน"
+                            disabled={page === "view"}
                             {...register(`requests.${index}.citizenId`)}
                             error={!!errors.requests?.[index]?.citizenId}
                             errorMessage={
@@ -542,6 +743,7 @@ export default function RequestForm() {
                             register={register(
                               `requests.${index}.maritalStatus`
                             )}
+                            disabled={page === "view"}
                             error={!!errors.requests?.[index]?.maritalStatus}
                             errorMessage={
                               errors.requests?.[index]?.maritalStatus?.message
@@ -565,6 +767,7 @@ export default function RequestForm() {
                               { value: "อิสลาม", label: "อิสลาม" },
                               { value: "อื่นๆ", label: "อื่นๆ" },
                             ]}
+                            disabled={page === "view"}
                             placeholder="เลือกศาสนา"
                             register={register(`requests.${index}.religion`)}
                             error={!!errors.requests?.[index]?.religion}
@@ -586,6 +789,7 @@ export default function RequestForm() {
                           <Input
                             type="number"
                             placeholder="อายุ"
+                            disabled={page === "view"}
                             {...register(`requests.${index}.age`)}
                             error={!!errors.requests?.[index]?.age}
                             errorMessage={
@@ -608,6 +812,7 @@ export default function RequestForm() {
                           <TextArea
                             placeholder="กรอกสาเหตุและวันที่เสียชีวิต"
                             rows={4}
+                            disabled={page === "view"}
                             register={register(`requests.${index}.died`)}
                             error={!!errors.requests?.[index]?.died}
                             hint={errors.requests?.[index]?.died?.message}
@@ -627,6 +832,7 @@ export default function RequestForm() {
                           <TextArea
                             placeholder="กรอกที่อยู่ตามทะเบียนบ้าน"
                             rows={4}
+                            disabled={page === "view"}
                             register={register(
                               `requests.${index}.houseRegistration`
                             )}
@@ -653,6 +859,7 @@ export default function RequestForm() {
                           <TextArea
                             placeholder="กรอกที่อยู่ปัจจุบัน"
                             rows={4}
+                            disabled={page === "view"}
                             register={register(
                               `requests.${index}.currentAddress`
                             )}
@@ -675,6 +882,7 @@ export default function RequestForm() {
                           <Input
                             type="text"
                             placeholder="กรอกอาชีพ"
+                            disabled={page === "view"}
                             {...register(`requests.${index}.career`)}
                             error={!!errors.requests?.[index]?.career}
                             errorMessage={
@@ -696,6 +904,7 @@ export default function RequestForm() {
                           <Input
                             type="text"
                             placeholder="กรอกรายได้ต่อเดือน"
+                            disabled={page === "view"}
                             {...register(`requests.${index}.income`)}
                             error={!!errors.requests?.[index]?.income}
                             errorMessage={
@@ -713,6 +922,7 @@ export default function RequestForm() {
                             register={register(
                               `requests.${index}.familyMembers`
                             )}
+                            disabled={page === "view"}
                             error={!!errors.requests?.[index]?.familyMembers}
                             hint={
                               errors.requests?.[index]?.familyMembers?.message
@@ -722,6 +932,7 @@ export default function RequestForm() {
                         <div className="col-span-12">
                           <Label>การให้ความช่วยเหลือจากหน่วยงานต่างๆ</Label>
                           <TextArea
+                            disabled={page === "view"}
                             placeholder="กรอกรายละเอียดการให้ความช่วยเหลือจากหน่วยงานต่างๆ"
                             rows={4}
                             register={register(`requests.${index}.assistance`)}
@@ -741,6 +952,7 @@ export default function RequestForm() {
                             ภาพถ่ายเหตุการณ์ก่อน/หลัง (ถ้ามี)
                           </Label>
                           <FileInput
+                            disabled={page === "view"}
                             register={register(`requests.${index}.beforeAfter`)}
                             error={!!errors.requests?.[index]?.beforeAfter}
                             errorMessage={
@@ -763,6 +975,7 @@ export default function RequestForm() {
                             <span className="text-red-500">*</span>
                           </Label>
                           <FileInput
+                            disabled={page === "view"}
                             register={register(
                               `requests.${index}.houseRegistrationFile`
                             )}
@@ -790,6 +1003,7 @@ export default function RequestForm() {
                             <span className="text-red-500">*</span>
                           </Label>
                           <FileInput
+                            disabled={page === "view"}
                             register={register(`requests.${index}.citizenCard`)}
                             error={!!errors.requests?.[index]?.citizenCard}
                             errorMessage={
@@ -812,6 +1026,7 @@ export default function RequestForm() {
                             <span className="text-red-500">*</span>
                           </Label>
                           <FileInput
+                            disabled={page === "view"}
                             register={register(`requests.${index}.dailyReport`)}
                             error={!!errors.requests?.[index]?.dailyReport}
                             errorMessage={
@@ -834,6 +1049,7 @@ export default function RequestForm() {
                             <span className="text-red-500">*</span>
                           </Label>
                           <FileInput
+                            disabled={page === "view"}
                             register={register(
                               `requests.${index}.deathCertificate`
                             )}
@@ -858,6 +1074,7 @@ export default function RequestForm() {
                             มรณบัตร <span className="text-red-500">*</span>
                           </Label>
                           <FileInput
+                            disabled={page === "view"}
                             register={register(`requests.${index}.deathRecord`)}
                             error={!!errors.requests?.[index]?.deathRecord}
                             errorMessage={
@@ -879,6 +1096,7 @@ export default function RequestForm() {
                             ใบสำคัญการสมรส (ถ้ามี)
                           </Label>
                           <FileInput
+                            disabled={page === "view"}
                             register={register(
                               `requests.${index}.marriageCertificate`
                             )}
@@ -907,6 +1125,7 @@ export default function RequestForm() {
                           <div className="flex gap-4">
                             <Input
                               type="text"
+                              disabled={page === "view"}
                               placeholder="กรอกรวมค่าก่อสร้าง"
                               {...register(
                                 `requests.${index}.constructionCost`
@@ -923,6 +1142,7 @@ export default function RequestForm() {
                               register={register(
                                 `requests.${index}.constructionCostFile`
                               )}
+                              disabled={page === "view"}
                               error={
                                 !!errors.requests?.[index]?.constructionCostFile
                               }
@@ -952,6 +1172,7 @@ export default function RequestForm() {
                             register={register(
                               `requests.${index}.fireCauseReport`
                             )}
+                            disabled={page === "view"}
                             error={!!errors.requests?.[index]?.fireCauseReport}
                             errorMessage={
                               errors.requests?.[index]?.fireCauseReport?.message
@@ -980,6 +1201,7 @@ export default function RequestForm() {
                           },
                           { value: "major", label: "เสียหายมาก (30-70%)" },
                         ]}
+                        disabled={page === "view"}
                         register={register(`requests.${index}.damage`)}
                         error={!!errors.requests?.[index]?.damage}
                         errorMessage={errors.requests?.[index]?.damage?.message}
@@ -992,66 +1214,133 @@ export default function RequestForm() {
           ))}
         </div>
         {/* Add new form */}
-        <Button
-          className="border-green-600 text-green-600"
-          size="sm"
-          variant="outline"
-          type="button"
-          onClick={() =>
-            append({
-              name: "",
-              surname: "",
-              citizenId: "",
-              damage: "",
-              maritalStatus: "",
-              religion: "",
-              age: 0,
-              died: "",
-              houseRegistration: "",
-              currentAddress: "",
-              familyMembers: "",
-              assistance: "",
-              income: "",
-              career: "",
-              beforeAfter: [],
-              citizenCard: [],
-              houseRegistrationFile: [],
-              dailyReport: [],
-              deathCertificate: [],
-              deathRecord: [],
-              marriageCertificate: [],
-              fireCauseReport: [],
-              constructionCostFile: [],
-              constructionCost: "",
-            })
-          }
-        >
-          เพิ่มฟอร์มใหม่
-        </Button>
+        {page != "view" && (
+          <Button
+            className="border-green-600 text-green-600"
+            size="sm"
+            variant="outline"
+            type="button"
+            onClick={() =>
+              append({
+                name: "",
+                surname: "",
+                citizenId: "",
+                damage: "",
+                maritalStatus: "",
+                religion: "",
+                age: 0,
+                died: "",
+                houseRegistration: "",
+                currentAddress: "",
+                familyMembers: "",
+                assistance: "",
+                income: "",
+                career: "",
+                beforeAfter: [],
+                citizenCard: [],
+                houseRegistrationFile: [],
+                dailyReport: [],
+                deathCertificate: [],
+                deathRecord: [],
+                marriageCertificate: [],
+                fireCauseReport: [],
+                constructionCostFile: [],
+                constructionCost: "",
+              })
+            }
+          >
+            เพิ่มฟอร์มใหม่
+          </Button>
+        )}
         <hr />
-        <Label
-          className={`font-medium ${
-            errors.totalPaid ? "text-red-500" : "text-gray-700"
-          }`}
-        >
-          รวมทั้งสิ้น (บาท) <span className="text-red-500">*</span>
-        </Label>
-        <Input
-          type="text"
-          placeholder="จำนวนเงินทั้งหมด"
-          {...register(`totalPaid`)}
-          error={!!errors.totalPaid}
-          errorMessage={errors.totalPaid?.message}
-        />
+        <div>
+          <Label
+            className={`font-medium ${
+              errors.totalPaid ? "text-red-500" : "text-gray-700"
+            }`}
+          >
+            รวมทั้งสิ้น (บาท) <span className="text-red-500">*</span>
+          </Label>
+
+          <div className="relative flex items-center">
+            <Input
+              type="text"
+              className="w-full"
+              placeholder="จำนวนเงินทั้งหมด"
+              {...register(`totalPaid`)}
+              disabled={page === "view" && isLocked} // 👈 ถ้า view + locked → disabled
+              error={!!errors.totalPaid}
+              errorMessage={errors.totalPaid?.message}
+            />
+
+            {page === "view" && (
+              <button
+                type="button"
+                onClick={() => setIsLocked((prev) => !prev)} // toggle lock/unlock
+                className="absolute right-3 text-gray-500 hover:text-blue-600"
+              >
+                <FiEdit2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+        {page === "view" && (
+          <div>
+            <Label
+              className={`font-medium ${
+                errors.criteria ? "text-red-500" : "text-gray-700"
+              }`}
+            >
+              เป็นไปตามตามหลักเกณฑ์หรือไม่{" "}
+              <span className="text-red-500">*</span>
+            </Label>
+            {/* criteria */}
+            <RadioGroup
+              options={[
+                { value: "ตามหลักเกณฑ์", label: "ตามหลักเกณฑ์" },
+                {
+                  value: "นอกเหนือหลักเกณฑ์",
+                  label: "นอกเหนือหลักเกณฑ์",
+                },
+              ]}
+              disabled={page != "view"}
+              register={register(`criteria`)}
+              error={!!errors.criteria}
+              errorMessage={errors.criteria?.message}
+            />
+          </div>
+        )}
         <div className="flex justify-end">
           {/* Submit */}
           <div className=" space-x-4 ">
-            <Button size="sm" type="submit" variant="outline">
-              บันทึกร่าง
-            </Button>
-            <Button size="sm" type="submit">
-              ส่งข้อมูล
-            </Button>
+            {page === "view" ? (
+              <Button
+                size="sm"
+                className="!border-red-500 !text-red-500"
+                type="submit"
+                variant="outline"
+              >
+                ปฏิเสธ
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                className="!border-red-500 !text-red-500"
+                type="submit"
+                variant="outline"
+              >
+                ยกเลิก
+              </Button>
+            )}
+            {page === "view" ? (
+              <Button size="sm" type="submit">
+                อนุมัติ
+              </Button>
+            ) : (
+              <Button size="sm" type="submit">
+                ส่งข้อมูล
+              </Button>
+            )}
           </div>
         </div>
       </form>
