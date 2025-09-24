@@ -21,7 +21,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
   (
     {
       options,
-      placeholder = "Select an option",
+      placeholder = "เลือก...",
       className = "",
       error = false,
       errorMessage,

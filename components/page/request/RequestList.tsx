@@ -6,6 +6,7 @@ import { FiEye, FiEdit, FiTrash } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
 import { Dropdown } from "@/components/ui/dropdown/Dropdown";
+import Link from "next/link";
 
 // ✅ ตัวอย่างข้อมูล
 const tableData = [
@@ -79,7 +80,11 @@ export default function RequestList() {
           >
             {selectedDisaster}
           </Button>
-          <Dropdown isOpen={isOpen} onClose={closeDropdown} className="w-40 p-2">
+          <Dropdown
+            isOpen={isOpen}
+            onClose={closeDropdown}
+            className="w-40 p-2"
+          >
             {disasters.map((disaster) => (
               <DropdownItem
                 key={disaster.id}
@@ -128,18 +133,27 @@ export default function RequestList() {
             className: "text-center",
             render: (row) => (
               <div className="flex items-center justify-center space-x-2">
-                <button
-                  className="p-2 text-blue-500 hover:bg-blue-100 rounded-full"
-                  title="ดูรายละเอียด"
-                >
-                  <FiEye className="w-4 h-4" />
-                </button>
-                <button
-                  className="p-2 text-yellow-500 hover:bg-yellow-100 rounded-full"
-                  title="แก้ไขคำร้อง"
-                >
-                  <FiEdit className="w-4 h-4" />
-                </button>
+                {/* ดูรายละเอียด */}
+                <Link href={`/drf/request/view/${row.id}`} passHref>
+                  <button
+                    className="p-2 text-blue-500 hover:bg-blue-100 rounded-full"
+                    title="ดูรายละเอียด"
+                  >
+                    <FiEye className="w-4 h-4" />
+                  </button>
+                </Link>
+
+                {/* แก้ไข */}
+                <Link href={`/drf/request/edit/${row.id}`} passHref>
+                  <button
+                    className="p-2 text-yellow-500 hover:bg-yellow-100 rounded-full"
+                    title="แก้ไขคำร้อง"
+                  >
+                    <FiEdit className="w-4 h-4" />
+                  </button>
+                </Link>
+
+                {/* ลบ */}
                 <button
                   className="p-2 text-red-500 hover:bg-red-100 rounded-full"
                   title="ลบคำร้อง"

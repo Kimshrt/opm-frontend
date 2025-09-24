@@ -64,10 +64,10 @@ const FileInput: FC<FileInputProps> = ({
 
       {/* Error / Hint */}
       {error && errorMessage && (
-        <p className="text-red-500 text-sm">{errorMessage}</p>
+        <p className="text-red-500 text-xs">{errorMessage}</p>
       )}
       {!error && hint && (
-        <p className="text-gray-500 text-sm dark:text-gray-400">{hint}</p>
+        <p className="text-gray-500 text-xs dark:text-gray-400">{hint}</p>
       )}
     </div>
   );
