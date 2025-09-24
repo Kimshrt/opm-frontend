@@ -11,6 +11,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options: Option[];
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
   error?: boolean;
   errorMessage?: string;
   hint?: string;
@@ -23,6 +24,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
       options,
       placeholder = "เลือก...",
       className = "",
+      disabled = false,
       error = false,
       errorMessage,
       hint,
@@ -33,10 +35,18 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ) => {
     let selectClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 pr-10 text-sm shadow-theme-xs focus:outline-hidden focus:ring-3 ${className}`;
 
-    if (error) {
-      selectClasses += ` text-error-800 border-error-500 focus:ring-error-500/10 dark:text-error-400 dark:border-error-500`;
+    // if (error) {
+    //   selectClasses += ` text-error-800 border-error-500 focus:ring-error-500/10 dark:text-error-400 dark:border-error-500`;
+    // } else {
+    //   selectClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800`;
+    // }
+
+    if (disabled) {
+      selectClasses += ` bg-gray-100 opacity-50 text-gray-800 border-gray-300 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
+    } else if (error) {
+      selectClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-error-300 focus:ring-3 focus:ring-error-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-error-800`;
     } else {
-      selectClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800`;
+      selectClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800`;
     }
 
     return (
@@ -44,6 +54,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           className={selectClasses}
+          disabled={disabled}
           {...register}
           {...rest}
         >
