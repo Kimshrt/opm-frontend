@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useController, Control } from "react-hook-form";
+import { useController, Control, FieldError } from "react-hook-form";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
-import { Thai } from "flatpickr/dist/l10n/th.js"; // ⭐ import locale ไทย
+import { Thai } from "flatpickr/dist/l10n/th.js";
 import Label from "./Label";
 import { CalenderIcon } from "../../icons";
 
@@ -15,6 +15,8 @@ type PropsType = {
   defaultDate?: flatpickr.Options.DateOption;
   label?: string;
   placeholder?: string;
+  rules?: object;
+  disabled?: boolean;
 };
 
 export default function DatePicker({
@@ -25,11 +27,17 @@ export default function DatePicker({
   defaultDate,
   label,
   placeholder,
+  rules,
+  disabled = false,
 }: PropsType) {
   const {
     field: { value, onChange, ref },
     fieldState: { error },
-  } = useController({ name, control });
+  } = useController({
+    name,
+    control,
+    rules,
+  });
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -40,12 +48,11 @@ export default function DatePicker({
       mode: mode || "single",
       static: true,
       monthSelectorType: "static",
-      locale: Thai, // ✅ ใช้ locale ไทย
-      dateFormat: "d F Y", // ✅ แสดงวันที่เป็นภาษาไทย
+      locale: Thai,
+      dateFormat: "d F Y",
       defaultDate: value || defaultDate,
       onChange: (selectedDates, dateStr) => {
         if (dateStr) {
-          // แปลงปี ค.ศ. → พ.ศ.
           const parts = dateStr.split(" ");
           if (parts.length === 3) {
             const year = parseInt(parts[2], 10) + 543;
@@ -60,6 +67,16 @@ export default function DatePicker({
       if (fp) fp.destroy();
     };
   }, [mode, onChange, defaultDate]);
+
+  let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs focus:outline-hidden placeholder:text-gray-400 dark:placeholder:text-white/30`;
+
+  if (disabled) {
+    inputClasses += ` bg-gray-100 opacity-50 text-gray-800 border-gray-300 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
+  } else if (error) {
+    inputClasses += ` bg-transparent text-gray-800 border-red-500 focus:border-red-500 focus:ring-3 focus:ring-red-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-red-500`;
+  } else {
+    inputClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800`;
+  }
 
   return (
     <div>
@@ -80,16 +97,8 @@ export default function DatePicker({
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs 
-                     placeholder:text-gray-400 focus:outline-hidden focus:ring-3  
-                     dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  
-                     bg-transparent text-gray-800 
-                     ${
-                       error
-                         ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                         : "border-gray-300 focus:border-brand-300 focus:ring-brand-500/20"
-                     } 
-                     dark:border-gray-700 dark:focus:border-brand-800`}
+          disabled={disabled}
+          className={inputClasses}
         />
 
         <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
