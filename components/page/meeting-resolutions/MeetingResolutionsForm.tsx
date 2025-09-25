@@ -98,7 +98,7 @@ export default function MeetingResolutionsForm() {
             />
           </div>
           <div className="col-span-12 md:col-span-4">
-            <Label>วันที่ประชุม</Label>
+            <Label required error={!!errors.meetingDate}>วันที่ประชุม</Label>
             <DatePicker
               name="meetingDate"
               control={control}
@@ -107,7 +107,7 @@ export default function MeetingResolutionsForm() {
             />
           </div>
           <div className="col-span-12 md:col-span-4">
-            <Label>สถานที่ประชุม</Label>
+            <Label required error={!!errors.meetingPlace}>สถานที่ประชุม</Label>
             <Input
               placeholder="สถานที่ประชุม"
               {...register("meetingPlace")}
@@ -116,7 +116,7 @@ export default function MeetingResolutionsForm() {
             />
           </div>
           <div className="col-span-12 ">
-            <Label>เรื่อง</Label>
+            <Label required error={!!errors.subject}>เรื่อง</Label>
             <Input
               placeholder="เรื่อง"
               {...register("subject")}
@@ -125,7 +125,7 @@ export default function MeetingResolutionsForm() {
             />
           </div>
           <div className="col-span-12 lg:col-span-6">
-            <Label>ประเภทสาธารณภัย</Label>
+            <Label required error={!!errors.disaster}>ประเภทสาธารณภัย</Label>
             <Input
               placeholder="ประเภทสาธารณภัย"
               {...register("disaster")}
@@ -134,7 +134,7 @@ export default function MeetingResolutionsForm() {
             />
           </div>
           <div className="col-span-12 lg:col-span-6">
-            <Label>จังหวัดที่ได้รับผลกระทบ</Label>
+            <Label required error={!!errors.province}>จังหวัดที่ได้รับผลกระทบ</Label>
             <Select
               options={[
                 { value: "sasdasd", label: "asdasd" },
@@ -148,7 +148,7 @@ export default function MeetingResolutionsForm() {
             />
           </div>
           <div className="col-span-12 lg:col-span-6">
-            <Label>จำนวนครัวเรือนที่ได้รับผลกระทบ (ประมาณ)</Label>
+            <Label >จำนวนครัวเรือนที่ได้รับผลกระทบ (ประมาณ)</Label>
             <Input
               placeholder="จำนวนครัวเรือน"
               {...register("householdsAffected")}
@@ -166,7 +166,7 @@ export default function MeetingResolutionsForm() {
             />
           </div>
           <div className="col-span-12">
-            <Label>เหตุผลที่ขอพิจารณานอกหลักเกณฑ์</Label>
+            <Label required error={!!errors.reasonsConsiderationOutsideCriteria}>เหตุผลที่ขอพิจารณานอกหลักเกณฑ์</Label>
             <TextArea
               placeholder="กรอกสาเหตุและวันที่เสียชีวิต"
               rows={4}
@@ -176,7 +176,7 @@ export default function MeetingResolutionsForm() {
             />
           </div>
           <div className="col-span-12 ">
-            <Label>วิธีดำเนินการ/กลไกควบคุม/การติดตาม</Label>
+            <Label required error={!!errors.proceed}>วิธีดำเนินการ/กลไกควบคุม/การติดตาม</Label>
             <TextArea
               placeholder="กรอกสาเหตุและวันที่เสียชีวิต"
               rows={4}
@@ -194,31 +194,36 @@ export default function MeetingResolutionsForm() {
                   <Label className="text-xl">รายการที่ {idx + 1}</Label>
                 </div>
                 <div className="col-span-12 lg:col-span-4">
-                  <Label>ประเภทช่วยเหลือ</Label>
+                  <Label required error={!!errors.assistance && !!errors.assistance[idx]?.type}>ประเภทช่วยเหลือ</Label>
                   <Input
                     placeholder="เช่น เงินสงเคราะห์/สิ่งของ/ซ่อมแซม"
                     {...register(`assistance.${idx}.type`)}
+                    error={!!errors.assistance && !!errors.assistance[idx]?.type}
+                    errorMessage={errors.assistance && errors.assistance[idx]?.type?.message}
                   />
                 </div>
 
                 <div className="col-span-12 lg:col-span-4">
-                  <Label>รายละเอียด</Label>
+                  <Label required error={!!errors.assistance && !!errors.assistance[idx]?.detail}>รายละเอียด</Label>
                   <Input
                     placeholder="เช่น เงินช่วยเหลือเร่งด่วนครัวเรือนละ … บาท"
                     {...register(`assistance.${idx}.detail`)}
+                    error={!!errors.assistance && !!errors.assistance[idx]?.detail}
+                    errorMessage={errors.assistance && errors.assistance[idx]?.detail?.message}
                   />
                 </div>
 
                 {/* งบประมาณ + ปุ่มลบ */}
                 <div className="col-span-12 lg:col-span-4 flex items-center gap-2">
                   <div className="flex-1">
-                    <Label>งบประมาณ (บาท)</Label>
+                    <Label required error={!!errors.assistance && !!errors.assistance[idx]?.budget}>งบประมาณ (บาท)</Label>
                     <Input
                       type="number"
                       className="input"
-                      {...register(`assistance.${idx}.budget`, {
-                        valueAsNumber: true,
-                      })}
+                      {...register(`assistance.${idx}.budget`)}
+                      error={!!errors.assistance && !!errors.assistance[idx]?.budget}
+                      errorMessage={errors.assistance && errors.assistance[idx]?.budget?.message}
+                      placeholder="0.00"
                     />
                   </div>
 

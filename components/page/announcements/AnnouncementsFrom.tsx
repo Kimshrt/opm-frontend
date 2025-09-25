@@ -8,28 +8,32 @@ import Input from "@/components/form/input/InputField";
 import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "@/components/form/date-picker";
+import Label from "@/components/form/Label";
+import Editor from "@/components/ui/QuillEditor";
+import FileInput from "@/components/form/input/FileInput";
+import CopyInput from "@/components/ui/CopyInput";
+import MultiSelect from "@/components/form/MultiSelect";
 
 // 🔹 type ของข้อมูลฟอร์ม
 type FormValues = {
-  requestId: string;
-  project: string;
+  title: string;
   date: string;
-  province: string;
-  status: string;
+  categories: string[];
+  attachments: File[];
   description: string;
+  status: string;
 };
 
 // 🔹 Yup schema
-const schema = yup
-  .object({
-    requestId: yup.string().required("กรุณากรอกหมายเลขคำขอ"),
-    project: yup.string().required("กรุณากรอกชื่อโครงการ"),
-    date: yup.string().required("กรุณาเลือกวันที่"),
-    province: yup.string().required("กรุณาเลือกจังหวัด"),
-    status: yup.string().required("กรุณาเลือกสถานะ"),
-    description: yup.string().required("กรุณากรอกรายละเอียดประกาศ"),
-  })
-  .required();
+const schema = yup.object({
+  title: yup.string().required("กรุณากรอกหัวข้อประกาศ"),
+  date: yup.string().required("กรุณาเลือกวันที่ประกาศ"),
+  categories: yup.array().of(yup.string().required()).default([]),
+
+  attachments: yup.mixed<File[]>().default([]),
+  description: yup.string().required("กรุณากรอกรายละเอียดประกาศ"),
+  status: yup.string().required("กรุณาเลือกสถานะ"),
+});
 
 export default function AnnouncementsForm() {
   const {
@@ -44,94 +48,126 @@ export default function AnnouncementsForm() {
 
   const onSubmit = (data: FormValues) => {
     console.log("Form Data:", data);
-    alert(JSON.stringify(data, null, 2)); // แสดงเป็น JSON อ่านง่าย
+    alert(JSON.stringify(data, null, 2));
     reset();
   };
 
   return (
     <div>
       <ComponentCard title="จัดการประกาศ">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Request ID */}
-          <Input
-            type="text"
-            placeholder="หมายเลขคำขอ"
-            {...register("requestId")}
-            error={!!errors.requestId}
-            errorMessage={errors.requestId?.message}
-          />
-
-          {/* Project */}
-          <Input
-            type="text"
-            placeholder="ชื่อโครงการ"
-            {...register("project")}
-            error={!!errors.project}
-            errorMessage={errors.project?.message}
-          />
-
-          {/* Date */}
-          <DatePicker
-            name="date"
-            control={control}
-            id="date"
-            label="เลือกวันที่"
-            placeholder="กรุณาเลือกวันที่"
-          />
-
-          {/* Province */}
-          <Select
-            options={[
-              { value: "bangkok", label: "กรุงเทพมหานคร" },
-              { value: "chiangmai", label: "เชียงใหม่" },
-              { value: "khonkaen", label: "ขอนแก่น" },
-            ]}
-            placeholder="เลือกจังหวัด"
-            register={register("province")}
-            error={!!errors.province}
-            errorMessage={errors.province?.message}
-          />
-
-          {/* Status */}
-          <Select
-            options={[
-              { value: "pending", label: "รอดำเนินการ" },
-              { value: "inprogress", label: "กำลังดำเนินการ" },
-              { value: "completed", label: "เสร็จสิ้น" },
-            ]}
-            placeholder="เลือกสถานะ"
-            register={register("status")}
-            error={!!errors.status}
-            errorMessage={errors.status?.message}
-          />
-
-          {/* Description */}
-          <div>
-            <textarea
-              rows={4}
-              placeholder="รายละเอียดประกาศ"
-              className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring focus:ring-blue-300"
-              {...register("description")}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid grid-cols-12 gap-4"
+        >
+          {/* Title */}
+          <div className="col-span-12">
+            <Label required error={!!errors.title}>
+              หัวข้อ
+            </Label>
+            <Input
+              type="text"
+              placeholder="หัวข้อ"
+              {...register("title")}
+              error={!!errors.title}
+              errorMessage={errors.title?.message}
             />
-            {errors.description && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.description.message}
-              </p>
-            )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex space-x-3 pt-4">
-            <Button type="submit" className="w-full">
-              บันทึกประกาศ
-            </Button>
+          {/* Date */}
+          <div className="col-span-12">
+            <Label required error={!!errors.date}>
+              วันที่ประกาศ
+            </Label>
+            <DatePicker
+              name="date"
+              control={control}
+              id="date"
+              placeholder="เลือกวันที่"
+            />
+          </div>
+
+          {/* Categories */}
+          <div className="col-span-12">
+            <Label  error={!!errors.categories}>
+              หมวดหมู่
+            </Label>
+            <MultiSelect
+              name="categories"
+              options={[
+                { value: "1", label: "Option 1" },
+                { value: "2", label: "Option 2" },
+                { value: "3", label: "Option 3" },
+                { value: "4", label: "Option 4" },
+                { value: "5", label: "Option 5" },
+              ]}
+              control={control}
+              error={!!errors.categories}
+              errorMessage={errors.categories?.message}
+            />
+          </div>
+
+          {/* Attachments */}
+          <div className="col-span-12">
+            <Label  error={!!errors.attachments}>
+              ไฟล์แนบ
+            </Label>
+            <FileInput
+              register={register("attachments")}
+              error={!!errors.attachments}
+              errorMessage={errors.attachments?.message}
+              className="flex-1 w-full"
+            />
+          </div>
+
+          {/* Description */}
+          <div className="col-span-12">
+            <Label required error={!!errors.description}>
+              รายละเอียดประกาศ
+            </Label>
+            <Editor
+              name="description"
+              control={control}
+              error={!!errors.description}
+              errorMessage={errors.description?.message}
+            />
+          </div>
+
+          {/* Copy URL */}
+          <div className="col-span-12">
+            <Label>Url Form รับบริจาคสิ่งของ</Label>
+            <CopyInput />
+          </div>
+
+          {/* Status */}
+          <div className="col-span-12">
+            <Label required error={!!errors.status}>
+              สถานะ
+            </Label>
+            <Select
+              options={[
+                { value: "ใช้งาน", label: "ใช้งาน" },
+                { value: "ไม่ใช้งาน", label: "ไม่ใช้งาน" },
+              ]}
+              placeholder="เลือกสถานะ"
+              register={register("status")}
+              error={!!errors.status}
+              errorMessage={errors.status?.message}
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="col-span-12 flex justify-between mt-4">
             <Button
+              size="sm"
+              className="!border-red-500 !text-red-500"
               type="button"
               variant="outline"
-              className="w-full"
               onClick={() => reset()}
             >
-              ล้างค่า
+              ยกเลิก
+            </Button>
+            <Button size="sm" type="submit">
+              อนุมัติ
             </Button>
           </div>
         </form>

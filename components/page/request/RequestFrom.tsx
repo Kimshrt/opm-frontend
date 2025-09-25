@@ -1,6 +1,6 @@
 "use client";
 import ComponentCard from "@/components/common/ComponentCard";
-import DropzoneInput from "@/components/form/form-elements/DropZone";
+import DropzoneInput from "@/components/form/input/DropZone";
 import Input from "@/components/form/input/InputField";
 import RadioGroup from "@/components/form/input/Radio";
 import Select from "@/components/form/Select";
