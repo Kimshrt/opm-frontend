@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { FiEye, FiEdit, FiTrash } from "react-icons/fi";
 import BasicTableOne from "@/components/tables/BasicTableOne";
+import Button from "@/components/ui/button/Button";
 
 export default function MeetingResolutionsList() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,6 +30,7 @@ export default function MeetingResolutionsList() {
     },
   ];
 
+
   const handleDelete = (id: number) => {
     alert(`ลบวาระ/มติรหัส: ${id}`);
   };
@@ -36,7 +38,17 @@ export default function MeetingResolutionsList() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">วาระ/มติการประชุม</h1>
-
+      <div className="flex justify-end mb-4">
+        <Link href="/drf/resolutions/create" className="mr-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-40 justify-between !my-0"
+          >
+            สร้างวาระ/มติการประชุม
+          </Button>
+        </Link>
+      </div>
       <BasicTableOne
         currentPage={currentPage}
         totalPages={1}

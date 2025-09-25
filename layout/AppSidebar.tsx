@@ -56,7 +56,7 @@ const navItems: NavItem[] = [
   {
     icon: <UserCircleIcon />,
     name: "วาระ/มติการประชุม",
-    path: "/drf/meeting-resolutions",
+    path: "/drf/resolutions",
   },
   {
     icon: <UserCircleIcon />,

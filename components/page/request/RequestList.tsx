@@ -69,6 +69,8 @@ export default function RequestList() {
 
   return (
     <div>
+      <h1 className="text-2xl font-bold mb-6">คำขอ</h1>
+
       {/* Dropdown ภัยพิบัติ */}
       <div className="flex justify-end mb-4">
         <div className="relative">
@@ -111,7 +113,7 @@ export default function RequestList() {
             className: "text-center",
           },
           {
-            header: "หน่วยงาน/องค์กร",
+            header: "จังหวัด",
             accessor: "org",
           },
           {
@@ -119,7 +121,7 @@ export default function RequestList() {
             accessor: "purpose",
           },
           {
-            header: "จำนวนเงินที่ขอ",
+            header: "จำนวนเงินทั้งหมด",
             accessor: "amount",
             className: "text-right",
           },

@@ -11,6 +11,9 @@ export default async function Page({ params }: PageProps) {
   return (
     <div>
       <RequestForm page="edit" id={id} disastersId={disastersId} />
+      <div className="border mt-4 border-[#000] p-4 rounded-xl bg-white">
+        kim
+      </div>
     </div>
   );
 }
