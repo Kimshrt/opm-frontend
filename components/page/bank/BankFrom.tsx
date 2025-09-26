@@ -9,22 +9,16 @@ import Label from "@/components/form/Label";
 import DatePicker from "@/components/form/date-picker";
 import TextArea from "@/components/form/input/TextArea";
 import FileInput from "@/components/form/input/FileInput";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { bankData } from "@/app/(page)/(backend)/drf/bank/bankData";
 import { useEffect } from "react";
+import { bankFormValues } from "@/type/bankType";
 
-type FormValues = {
-  accountName: string;      // ชื่อเปิดบัญชีธนาคาร
-  accountNumber: string;    // หมายเลขบัญชี
-  openDate: Date | string;  // วันที่เปิดบัญชี (ใช้ Date หรือ string ก็ได้ ขึ้นอยู่กับ DatePicker)
-  accountType: string;      // ประเภทบัญชี (ออมทรัพย์, กระแสรายวัน ฯลฯ)
-  isActive: boolean;        // สถานะ เปิดใช้งาน/ไม่เปิดใช้งาน
-  note?: string;            // หมายเหตุ (optional)
-  accountFile: File | null;
-};
+interface Props {
+  id?: string;
+}
 
-export default function RequestForm() {
-  const { id } = useParams();
+export default function BankForm({ id }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const isEdit = pathname.includes("edit") || pathname.includes("create");
@@ -46,12 +40,15 @@ export default function RequestForm() {
     handleSubmit,
     control,
     reset,
+    setValue,
+    watch,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<bankFormValues>({
     defaultValues: {
       accountName: "",
       accountNumber: "",
       openDate: "",
+      // department: { id: 0, name: "" },
       isActive: true,
       note: "",
       accountFile: null,
@@ -63,14 +60,17 @@ export default function RequestForm() {
       if (id) {
         const data = await fetchData(Number(id));
         if (data) {
-          reset(data);
+          reset({
+            ...data,
+            department: data.department?.id,
+          });
         }
       }
     };
     loadData();
   }, [id, reset]);
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = (data: bankFormValues) => {
     console.log("Form array data:", data);
   };
 
@@ -82,19 +82,6 @@ export default function RequestForm() {
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 gap-6 "
       >
-        <div>
-          <Label>ชื่อเปิดบัญชีธนาคาร <span className="text-red-500">*</span></Label>
-          <Input
-            register={register("accountName", {
-              required: "กรุณากรอกชื่อเปิดบัญชีธนาคาร",
-            })}
-            placeholder="ชื่อเปิดบัญชีธนาคาร"
-            disabled={!isEdit}
-            error={!!errors.accountName}
-            errorMessage={errors.accountName?.message}
-          />
-        </div>
-
         <div>
           <Label>หมายเลขบัญชี <span className="text-red-500">*</span></Label>
           <Input
@@ -108,8 +95,39 @@ export default function RequestForm() {
           />
         </div>
 
+        <div>
+          <Label>ชื่อเปิดบัญชีธนาคาร <span className="text-red-500">*</span></Label>
+          <Input
+            register={register("accountName", {
+              required: "กรุณากรอกชื่อเปิดบัญชีธนาคาร",
+            })}
+            placeholder="ชื่อเปิดบัญชีธนาคาร"
+            disabled={!isEdit}
+            error={!!errors.accountName}
+            errorMessage={errors.accountName?.message}
+          />
+        </div>
+
         {/* Date + Account Type + Status */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <div>
+            <Label>
+              ประเภทบัญชี <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              options={[
+                { value: "บัญชีออมทรัพย์", label: "บัญชีออมทรัพย์" },
+              ]}
+              placeholder="เลือกประเภทบัญชี"
+              register={register("accountType", {
+                required: "กรุณาเลือกประเภทบัญชี",
+              })}
+              disabled={!isEdit}
+              error={!!errors.accountType}
+              errorMessage={errors.accountType?.message}
+            />
+          </div>
+
           <div>
             <Label>
               วันที่เปิดบัญชี (วว/ดด/ปป) <span className="text-red-500">*</span>
@@ -127,19 +145,20 @@ export default function RequestForm() {
 
           <div>
             <Label>
-              ประเภทบัญชี <span className="text-red-500">*</span>
+              หน่วยงาน <span className="text-red-500">*</span>
             </Label>
             <Select
-              options={[
-                { value: "บัญชีออมทรัพย์", label: "บัญชีออมทรัพย์" },
-              ]}
-              placeholder="เลือกประเภทบัญชี"
-              register={register("accountType", {
-                required: "กรุณาเลือกประเภทบัญชี",
+              options={bankData.map((item) => ({
+                value: item.department?.id,
+                label: item.department?.name!,
+              }))}
+              placeholder="เลือกหน่วยงาน"
+              register={register("department", {
+                required: "กรุณาเลือกหน่วยงาน",
               })}
               disabled={!isEdit}
-              error={!!errors.accountType}
-              errorMessage={errors.accountType?.message}
+              error={!!errors.department}
+              errorMessage={errors.department?.message}
             />
           </div>
 
@@ -208,6 +227,6 @@ export default function RequestForm() {
           </div>
         </div>
       </form>
-    </ComponentCard>
+    </ComponentCard >
   );
 }

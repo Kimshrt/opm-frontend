@@ -1,14 +1,15 @@
 "use client";
-import { bankData } from "@/app/(page)/(backend)/drf/bank/bankData";
+import { bankListData, channelListData, incomeData } from "@/app/(page)/(backend)/drf/income-transfer/incomeData";
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Button from "@/components/ui/button/Button";
+import { formatAmount } from "@/hooks/formatAmount";
 import Link from "next/link";
 import { useState } from "react";
 import { FiEye, FiEdit, FiTrash } from "react-icons/fi";
 
-export default function BankList() {
+export default function IncomeList() {
   const [currentPage, setCurrentPage] = useState(1);
-  const tableData = bankData;
+  const tableData = incomeData;
 
   const handleDelete = (id: number) => {
     if (confirm(`คุณต้องการลบคำขอ ID: ${id} ใช่หรือไม่?`)) {
@@ -19,9 +20,9 @@ export default function BankList() {
   return (
     <div>
       <div className="flex justify-end ">
-        <Link href="bank/create">
+        <Link href="income-transfer/create">
           <Button size="sm" variant="outline">
-            สร้างข้อมูลธนาคาร
+            สร้างรายการรับเงิน
           </Button>
         </Link>
       </div>
@@ -32,55 +33,69 @@ export default function BankList() {
         data={tableData}
         columns={[
           {
-            header: "หมายเลขบัญชี",
-            accessor: "accountNumber",
+            header: "วันที่รับเงิน",
+            accessor: "incomeDate",
             className: "text-center",
           },
           {
-            header: "ชื่อบัญชีธนาคาร",
-            accessor: "accountName",
+            header: "รายละเอียดรายการ",
+            accessor: "detail",
           },
           {
-            header: "วัน/เดือน/ปี",
-            accessor: "openDate",
+            header: "ช่องทางรับเงิน",
+            accessor: "channel_id",
             className: "text-center",
+            render: (row) => {
+              const channel = channelListData.find((c) => c.id === row.channel_id);
+
+              return (
+                <div className="flex items-center justify-center space-x-2">
+                  <div>{channel ? channel.name : ""}</div>
+                </div>
+              );
+            },
           },
           {
-            header: "หน่วยงาน",
-            accessor: "department",
+            header: "จำนวน (บาท)",
+            accessor: "amount",
             className: "text-center",
             render: (row) => (
-              <span>
-                {row.department?.name}
-              </span>
+              <div>{formatAmount(row.amount)}</div>
             ),
           },
           {
-            header: "สถานะ",
-            accessor: "isActive",
+            header: "ธนาคาร",
+            accessor: "bank_id",
             className: "text-center",
-            render: (row) => (
-              <span
-                className={`font-medium ${row.isActive ? "text" : "text-red-600"}`}
-              >
-                {row.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-              </span>
-            ),
+            render: (row) => {
+              const channel = bankListData.find((c) => c.id === row.channel_id);
+              return (
+                <div className="flex items-center justify-center space-x-2">
+                  <div>{channel ? channel.name : ""}</div>
+                </div>
+              );
+            }
+          },
+          {
+            header: "ผู้โอนเงิน",
+            accessor: "payer",
+            className: "text-center",
           },
           {
             header: "การจัดการ",
             className: "text-center",
+
             render: (row) => (
               <div className="flex items-center justify-center space-x-2">
                 <Link
-                  href={`bank/view/${row.id}`}
+                  href={`income-transfer/view/${row.id}`}
                   className="p-2 text-blue-500 hover:bg-blue-100 rounded-full"
                   title="ดูรายละเอียด"
                 >
                   <FiEye className="w-4 h-4" />
                 </Link>
                 <Link
-                  href={`bank/edit/${row.id}`}
+                  href={`income-transfer/edit/${row.id}`}
                   className="p-2 text-yellow-500 hover:bg-yellow-100 rounded-full"
                   title="แก้ไขโครงการ"
                 >

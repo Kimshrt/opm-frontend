@@ -14,6 +14,10 @@ import FileInput from "@/components/form/input/FileInput";
 import CopyInput from "@/components/ui/CopyInput";
 import MultiSelect from "@/components/form/MultiSelect";
 
+interface Props {
+  id?: string;
+}
+
 // 🔹 type ของข้อมูลฟอร์ม
 type FormValues = {
   title: string;
@@ -35,7 +39,7 @@ const schema = yup.object({
   status: yup.string().required("กรุณาเลือกสถานะ"),
 });
 
-export default function AnnouncementsForm() {
+export default function AnnouncementsForm({ id }: Props) {
   const {
     register,
     handleSubmit,
@@ -88,7 +92,7 @@ export default function AnnouncementsForm() {
 
           {/* Categories */}
           <div className="col-span-12">
-            <Label  error={!!errors.categories}>
+            <Label error={!!errors.categories}>
               หมวดหมู่
             </Label>
             <MultiSelect
@@ -108,7 +112,7 @@ export default function AnnouncementsForm() {
 
           {/* Attachments */}
           <div className="col-span-12">
-            <Label  error={!!errors.attachments}>
+            <Label error={!!errors.attachments}>
               ไฟล์แนบ
             </Label>
             <FileInput
@@ -135,7 +139,7 @@ export default function AnnouncementsForm() {
           {/* Copy URL */}
           <div className="col-span-12">
             <Label>Url Form รับบริจาคสิ่งของ</Label>
-            <CopyInput />
+            <CopyInput path={`form-donation/${id}`} />
           </div>
 
           {/* Status */}

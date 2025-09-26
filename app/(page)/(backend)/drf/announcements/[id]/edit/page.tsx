@@ -1,8 +1,15 @@
 import AnnouncementsFrom from '@/components/page/announcements/AnnouncementsFrom'
 import React from 'react'
 
-export default function page() {
+interface PageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export default async function page({ params }: PageProps) {
+  const { id } = await params;
   return (
-    <div><AnnouncementsFrom/></div>
+    <div><AnnouncementsFrom id={id} /></div>
   )
 }

@@ -63,6 +63,11 @@ const navItems: NavItem[] = [
     name: "จัดการประกาศ",
     path: "/drf/announcements",
   },
+  {
+    icon: <UserCircleIcon />,
+    name: "รายการรับเงิน",
+    path: "/drf/income-transfer",
+  },
 ];
 
 const othersItems: NavItem[] = [
