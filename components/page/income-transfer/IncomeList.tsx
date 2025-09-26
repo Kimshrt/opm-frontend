@@ -9,6 +9,13 @@ import { FiEye, FiEdit, FiTrash } from "react-icons/fi";
 
 export default function IncomeList() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selection, setSelection] = useState<{
+    selected: Record<number, boolean>;
+    selectAllGlobal: boolean;
+  }>({
+    selected: {},
+    selectAllGlobal: false,
+  });
   const tableData = incomeData;
 
   const handleDelete = (id: number) => {
@@ -31,6 +38,8 @@ export default function IncomeList() {
         totalPages={1}
         setCurrentPage={setCurrentPage}
         data={tableData}
+        selection={selection}
+        setSelection={setSelection}
         columns={[
           {
             header: "วันที่รับเงิน",

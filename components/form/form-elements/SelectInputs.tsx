@@ -15,7 +15,8 @@ export default function SelectInputs() {
 
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
-  const handleSelectChange = (value: string) => {
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
     console.log("Selected value:", value);
   };
 
@@ -48,11 +49,11 @@ export default function SelectInputs() {
           <MultiSelect
             label="Multiple Select Options"
             options={[
-              { value: "1", text: "Option 1", selected: false },
-              { value: "2", text: "Option 2", selected: false },
-              { value: "3", text: "Option 3", selected: false },
-              { value: "4", text: "Option 4", selected: false },
-              { value: "5", text: "Option 5", selected: false },
+              { value: "1", label: "Option 1", selected: false },
+              { value: "2", label: "Option 2", selected: false },
+              { value: "3", label: "Option 3", selected: false },
+              { value: "4", label: "Option 4", selected: false },
+              { value: "5", label: "Option 5", selected: false },
             ]}
             defaultSelected={["1", "3"]}
           />

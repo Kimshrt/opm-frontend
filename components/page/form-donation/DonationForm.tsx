@@ -12,7 +12,7 @@ import Label from "@/components/form/Label";
 import TextArea from "@/components/form/input/TextArea";
 import DropzoneInput from "@/components/form/input/DropZone";
 import { formDonationFormValues } from "@/type/formDonationType";
-import { FormDonationData } from "@/app/(page)/(frontend)/form-donation/[id]/formData";
+import { FormDonationData } from "@/app/(page)/(frontend)/form-donation/[id]/formDonationData";
 
 interface Props {
   id?: number;
@@ -280,7 +280,7 @@ export default function DonationForm({ id }: Props) {
           </div>
 
           <div className="col-span-12">
-            <DropzoneInput control={control} name="files" />
+            {control && <DropzoneInput control={control} name="files" />}
           </div>
 
           <div className="col-span-12 flex justify-end mt-4">

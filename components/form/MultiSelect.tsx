@@ -6,19 +6,23 @@ import { Controller } from "react-hook-form";
 interface Option {
   value: string;
   label: string;
+  selected?: boolean;
 }
 
 interface MultiSelectProps {
-  name: string;
+  label?: string;
+  name?: string;
   placeholder?: string;
   options: Option[];
-  control: any;
+  defaultSelected?: string[];
+  control?: any;
   disabled?: boolean;
   error?: boolean;
   errorMessage?: string;
 }
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
+  label,
   name,
   placeholder = "เลือก...",
   options,
@@ -57,7 +61,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   return (
     <div className="w-full" ref={wrapperRef}>
       <Controller
-        name={name}
+        name={name ?? ""}
         control={control}
         defaultValue={[]}
         render={({ field }) => {

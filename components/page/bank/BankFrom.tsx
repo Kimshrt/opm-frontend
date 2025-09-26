@@ -47,7 +47,7 @@ export default function BankForm({ id }: Props) {
     defaultValues: {
       accountName: "",
       accountNumber: "",
-      openDate: "",
+      // openDate: "",
       // department: { id: 0, name: "" },
       isActive: true,
       note: "",
