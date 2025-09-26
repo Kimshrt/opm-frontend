@@ -6,7 +6,9 @@ interface CheckboxProps {
   className?: string;
   id?: string;
   disabled?: boolean;
-  // รองรับ react-hook-form
+  value?: string | number;
+  checked?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   register?: UseFormRegisterReturn;
 }
 
@@ -15,6 +17,9 @@ const Checkbox: React.FC<CheckboxProps> = ({
   id,
   className = "",
   disabled = false,
+  value,
+  checked,
+  onChange,
   register,
 }) => {
   return (
@@ -27,11 +32,13 @@ const Checkbox: React.FC<CheckboxProps> = ({
         <input
           id={id}
           type="checkbox"
+          value={value}
+          checked={checked}
           disabled={disabled}
-          className={`w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-brand-500 disabled:opacity-60 ${className}`}
+          onChange={onChange}
+          className={`peer w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-brand-500 disabled:opacity-60 ${className}`}
           {...register}
         />
-        {/* checkmark */}
         <svg
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0 peer-checked:opacity-100"
           xmlns="http://www.w3.org/2000/svg"

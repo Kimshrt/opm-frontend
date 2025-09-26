@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
   {
     icon: <UserCircleIcon />,
     name: "เบิกจ่าย",
-    path: "/backend/profile",
+    path: "/drf/disbursement",
   },
   {
     icon: <UserCircleIcon />,
