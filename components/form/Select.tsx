@@ -3,7 +3,7 @@ import { UseFormRegisterReturn } from "react-hook-form";
 import { FiChevronDown } from "react-icons/fi";
 
 interface Option {
-  value: string;
+  value?: string | number;
   label: string;
 }
 

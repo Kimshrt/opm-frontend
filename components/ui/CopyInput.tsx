@@ -4,17 +4,18 @@ import React, { useState, useEffect } from "react";
 
 interface CopyInputProps {
   value?: string; // ทำเป็น optional
+  path?: string;
 }
 
-const CopyInput: React.FC<CopyInputProps> = ({ value }) => {
+const CopyInput: React.FC<CopyInputProps> = ({ value, path }) => {
   const [copied, setCopied] = useState(false);
   const [url, setUrl] = useState<string>(value || "");
 
   useEffect(() => {
     if (!value && typeof window !== "undefined") {
-      setUrl(window.location.href); // เอา URL ปัจจุบัน
+      setUrl(`${window.location.origin}/${path}`);
     }
-  }, [value]);
+  }, [value, path]);
 
   const handleCopy = async () => {
     try {
@@ -37,9 +38,8 @@ const CopyInput: React.FC<CopyInputProps> = ({ value }) => {
       <button
         type="button"
         onClick={handleCopy}
-        className={`px-3 py-2 text-base border-l min-w-[70px]  h-[44px] text-center ${
-          copied ? "bg-green-100 text-green-700" : "bg-gray-100 hover:bg-gray-200"
-        }`}
+        className={`px-3 py-2 text-base border-l min-w-[70px]  h-[44px] text-center ${copied ? "bg-green-100 text-green-700" : "bg-gray-100 hover:bg-gray-200"
+          }`}
       >
         {copied ? "Copied!" : "Copy"}
       </button>
