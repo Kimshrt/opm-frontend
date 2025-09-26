@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -42,11 +42,14 @@ export default function BasicTableOne<T extends { id: number }>({
   selection,
   setSelection,
 }: BasicTableProps<T>) {
-  const { selected, selectAllGlobal } = selection ?? { selected: {}, selectAllGlobal: false };
+  const { selected, selectAllGlobal } = selection ?? {
+    selected: {},
+    selectAllGlobal: false,
+  };
 
   // 🟢 toggle all
   const toggleAll = () => {
-    if(!setSelection) return;
+    if (!setSelection) return;
     setSelection({
       selected: {}, // reset รายการที่เลือกเอง
       selectAllGlobal: !selectAllGlobal,
@@ -55,7 +58,7 @@ export default function BasicTableOne<T extends { id: number }>({
 
   // 🟢 toggle row
   const toggleOne = (id: number) => {
-    if(!setSelection) return;
+    if (!setSelection) return;
     setSelection({
       selected: {
         ...selected,
@@ -67,13 +70,16 @@ export default function BasicTableOne<T extends { id: number }>({
 
   // 🟢 checked ของ header
   const allSelected =
-    selectAllGlobal ||
-    (data.length > 0 && data.every((row) => selected[row.id]));
+    selectAllGlobal || (data.length > 0 && data.every((row) => selected[row.id]));
+
+  const isCompact = columns.length <= 7;
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-      <div className="max-w-full overflow-x-auto">
-        <div className="min-w-[1000px]">
+      <div className="w-full overflow-x-auto">
+        <div
+          className={isCompact ? "min-w-[1000px]" : "w-full max-w-[1000px]"}
+        >
           <Table>
             {/* ✅ Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-gray-900/30">
@@ -90,9 +96,8 @@ export default function BasicTableOne<T extends { id: number }>({
                   <TableCell
                     key={idx}
                     isHeader
-                    className={`px-5 py-3 font-medium text-gray-600 dark:text-gray-300 ${
-                      col.className ?? "text-start"
-                    }`}
+                    className={`px-5 py-3 font-medium text-gray-600 dark:text-gray-300 ${col.className ?? "text-start"
+                      }`}
                   >
                     {col.header}
                   </TableCell>
@@ -103,7 +108,8 @@ export default function BasicTableOne<T extends { id: number }>({
             {/* ✅ Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
               {data.map((row, index) => {
-                const checked = selectAllGlobal || selected[row.id] || false;
+                const checked =
+                  selectAllGlobal || selected[row.id] || false;
 
                 return (
                   <TableRow key={row.id}>
@@ -123,8 +129,8 @@ export default function BasicTableOne<T extends { id: number }>({
                         {col.render
                           ? col.render(row, index)
                           : col.accessor
-                          ? (row[col.accessor] as React.ReactNode)
-                          : null}
+                            ? (row[col.accessor] as React.ReactNode)
+                            : null}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -133,11 +139,14 @@ export default function BasicTableOne<T extends { id: number }>({
             </TableBody>
           </Table>
         </div>
-           <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+      </div>
+
+      <div className="border-t border-gray-100 dark:border-white/[0.05]">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </div>
     </div>
   );
