@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -9,11 +9,12 @@ import {
 } from "../ui/table";
 import Checkbox from "../form/input/Checkbox";
 import Pagination from "./Pagination";
+import { Controller } from "react-hook-form";
 
 type Column<T> = {
   header: string;
   accessor?: keyof T;
-  render?: (row: T, index: number) => React.ReactNode; // 👈 index เพิ่มมา
+  render?: (row: T, index: number) => React.ReactNode;
   className?: string;
 };
 
@@ -23,6 +24,9 @@ interface BasicTableProps<T> {
   currentPage: number;
   totalPages: number;
   setCurrentPage: (page: number) => void;
+
+  name?: string;
+  control?: any;
 }
 
 export default function BasicTableOne<T extends { id: number }>({
@@ -30,36 +34,52 @@ export default function BasicTableOne<T extends { id: number }>({
   columns,
   currentPage,
   totalPages,
-  setCurrentPage
+  setCurrentPage,
+  name,
+  control,
 }: BasicTableProps<T>) {
-  const [selected, setSelected] = useState<number[]>([]);
-
-  const toggleSelect = (id: number) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const toggleAll = () => {
-    if (selected.length === data.length) {
-      setSelected([]);
-    } else {
-      setSelected(data.map((o) => o.id));
-    }
-  };
-
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
-        <div className="min-w-[1000px]">
+        <div className="min-w-[800px]">
           <Table>
-            {/* ✅ Table Header */}
-            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-gray-900/30">
+            {/* Header */}
+            <TableHeader className="bg-gray-50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
                 <TableCell className="w-12 text-center px-4 py-3">
-                  <Checkbox
-                    checked={selected.length === data.length}
-                    onChange={toggleAll}
+                  <Controller
+                    name={name ? name  : ""}
+                    control={control}
+                    // 🟢 เปลี่ยน defaultValue ให้เก็บทั้ง selected + selectAllGlobal
+                    defaultValue={{ selected: {}, selectAllGlobal: false }}
+                    render={({ field }) => {
+                      const { selected, selectAllGlobal } = field.value || {
+                        selected: {},
+                        selectAllGlobal: false,
+                      };
+
+                      // 🟢 allSelected = true ถ้า selectAllGlobal เปิดอยู่
+                      const allSelected =
+                        selectAllGlobal ||
+                        (data.length > 0 &&
+                          data.every((row) => selected[row.id]));
+
+                      const toggleAll = () => {
+                        field.onChange({
+                          selected: {}, // reset local selections
+                          selectAllGlobal: !allSelected, // toggle global flag
+                        });
+                      };
+
+                      return (
+                        <Checkbox
+                          id={`${name}-all`}
+                          checked={allSelected}
+                          disabled={data.length === 0}
+                          onChange={toggleAll}
+                        />
+                      );
+                    }}
                   />
                 </TableCell>
                 {columns.map((col, idx) => (
@@ -76,31 +96,53 @@ export default function BasicTableOne<T extends { id: number }>({
               </TableRow>
             </TableHeader>
 
-            {/* ✅ Table Body */}
+            {/* Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
               {data.map((row, index) => (
-                <TableRow
-                  key={row.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                >
-                  {/* Checkbox */}
+                <TableRow key={row.id}>
                   <TableCell className="w-12 text-center px-4 py-3">
-                    <Checkbox
-                      checked={selected.includes(row.id)}
-                      onChange={() => toggleSelect(row.id)}
+                    <Controller
+                      name={name ? name  : ""}
+                      control={control}
+                      defaultValue={{ selected: {}, selectAllGlobal: false }}
+                      render={({ field }) => {
+                        const { selected, selectAllGlobal } = field.value || {
+                          selected: {},
+                          selectAllGlobal: false,
+                        };
+
+                        // 🟢 ถ้า selectAllGlobal = true → ทุก row checked
+                        const checked =
+                          selectAllGlobal || selected[row.id] || false;
+
+                        const toggleOne = () => {
+                          field.onChange({
+                            selected: {
+                              ...selected,
+                              [row.id]: !checked,
+                            },
+                            selectAllGlobal: false, // 🟢 ยกเลิก global ถ้าแก้ทีละ row
+                          });
+                        };
+
+                        return (
+                          <Checkbox
+                            id={`${name}-${row.id}`}
+                            checked={checked}
+                            onChange={toggleOne}
+                          />
+                        );
+                      }}
                     />
                   </TableCell>
 
-                  {/* Dynamic Columns */}
                   {columns.map((col, idx) => (
                     <TableCell
                       key={idx}
-                      className={`px-5 py-3 text-gray-700 dark:text-gray-300 ${
-                        col.className ?? "text-start"
-                      }`}
+                      className="px-5 py-3 text-gray-700 dark:text-gray-300"
                     >
                       {col.render
-                        ? col.render(row, index) // 👈 ส่ง index เข้าไปด้วย
+                        ? col.render(row, index)
                         : col.accessor
                         ? (row[col.accessor] as React.ReactNode)
                         : null}
@@ -111,11 +153,11 @@ export default function BasicTableOne<T extends { id: number }>({
             </TableBody>
           </Table>
         </div>
-           <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </div>
     </div>
   );
