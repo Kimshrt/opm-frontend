@@ -15,7 +15,17 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10", 10);
 
     // 🔹 ใช้ accounts จาก db.json
-    const accounts = db.accounts || [];
+    const search = searchParams.get("search")?.toLowerCase() || "";
+    let accounts = db.accounts || [];
+
+    if (search) {
+      accounts = accounts.filter(
+        (a: any) =>
+          a.name.toLowerCase().includes(search) ||
+          a.number.toLowerCase().includes(search) ||
+          a.bank.toLowerCase().includes(search)
+      );
+    }
 
     // 🔹 pagination slice
     const start = (page - 1) * limit;

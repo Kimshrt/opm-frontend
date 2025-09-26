@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -30,6 +30,16 @@ const tableData = [
 ];
 export default function DisbursementList() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [accountList, setAccountList] = useState<
+    { id: number; number: number; name: string; bank: string }[]
+  >([]);
+  const [selection, setSelection] = useState<{
+    selected: Record<number, boolean>;
+    selectAllGlobal: boolean;
+  }>({
+    selected: {},
+    selectAllGlobal: false,
+  });
   return (
     <div>
       {/* ตาราง */}
@@ -38,6 +48,8 @@ export default function DisbursementList() {
         totalPages={1}
         setCurrentPage={setCurrentPage}
         data={tableData}
+        selection={selection}
+        setSelection={setSelection}
         columns={[
           {
             header: "ลำดับ",
