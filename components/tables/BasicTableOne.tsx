@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import Pagination from "./Pagination";
 type Column<T> = {
   header: string;
   accessor?: keyof T;
-  render?: (row: T, index: number) => React.ReactNode;
+  render?: (row: T, index: number) => React.ReactNode; // 👈 index เพิ่มมา
   className?: string;
 };
 
@@ -73,10 +73,10 @@ export default function BasicTableOne<T extends { id: number }>({
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
-        <div className="min-w-[800px]">
+        <div className="min-w-[1000px]">
           <Table>
-            {/* Header */}
-            <TableHeader className="bg-gray-50 dark:bg-gray-900/30 border-b border-gray-100 dark:border-white/[0.05]">
+            {/* ✅ Table Header */}
+            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-gray-900/30">
               <TableRow>
                 <TableCell className="w-12 text-center px-4 py-3">
                   <Checkbox
@@ -100,7 +100,7 @@ export default function BasicTableOne<T extends { id: number }>({
               </TableRow>
             </TableHeader>
 
-            {/* Body */}
+            {/* ✅ Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
               {data.map((row, index) => {
                 const checked = selectAllGlobal || selected[row.id] || false;
@@ -133,11 +133,11 @@ export default function BasicTableOne<T extends { id: number }>({
             </TableBody>
           </Table>
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+           <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
       </div>
     </div>
   );

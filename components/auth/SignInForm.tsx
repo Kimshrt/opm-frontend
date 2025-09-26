@@ -95,7 +95,7 @@ export default function SignInForm() {
                           <div className="flex items-center gap-3">
                             <Checkbox
                               checked={isChecked}
-                              onChange={setIsChecked}
+                              onChange={(e) => setIsChecked(e.target.checked)}
                             />
                             <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
                               จดจำฉันไว้
