@@ -12,7 +12,7 @@ import Label from "@/components/form/Label";
 import TextArea from "@/components/form/input/TextArea";
 import DropzoneInput from "@/components/form/input/DropZone";
 import { formDonationFormValues } from "@/type/formDonationType";
-import { formData } from "@/app/(page)/(frontend)/form-donation/[id]/formData";
+import { FormDonationData } from "@/app/(page)/(frontend)/form-donation/[id]/formData";
 
 interface Props {
   id?: number;
@@ -73,7 +73,7 @@ export default function DonationForm({ id }: Props) {
     try {
       // const response = await fetch(`/api/bank/${id}`);
       // const data = await response.json();
-      const data = formData.find((item) => item.id === id);
+      const data = FormDonationData.find((item) => item.id === id);
       return data;
     } catch (error) {
       console.error("Error fetching data:", error);
